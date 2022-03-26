@@ -1,2 +1,9 @@
-package com.example.introinvert.models;public class ChatMessage {
+package com.example.introinvert.models;
+
+import java.util.Date;
+
+public class ChatMessage {
+    public String senderId, receiverId, message, dateTime;
+    public Date dateObject;
+    public String conversationId, conversationName, conversationImage;
 }
