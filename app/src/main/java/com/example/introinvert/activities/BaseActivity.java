@@ -10,6 +10,8 @@ import com.example.introinvert.utilities.PreferenceManager;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+
+//Class for BaseActivity, contains methods for Availability
 public class BaseActivity extends AppCompatActivity {
 
     private DocumentReference documentReference;

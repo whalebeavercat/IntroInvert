@@ -43,7 +43,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
+//Chat Activity between two users
 public class ChatActivity extends BaseActivity {
 
     private ActivityChatBinding binding;
@@ -67,6 +67,8 @@ public class ChatActivity extends BaseActivity {
         listenMessage();
     }
 
+    //MODIFIES: this
+    //EFFECTS: Initialize and Modify the Shared Preferences, Firebase Database and Chat Adapter
     private void init() {
         preferenceManager = new PreferenceManager(getApplicationContext());
         chatMessages = new ArrayList<>();
@@ -77,6 +79,8 @@ public class ChatActivity extends BaseActivity {
         database = FirebaseFirestore.getInstance();
     }
 
+    //MODIFIES:this
+    //EFFECTS: Create new message, update conversation, update chat adapter, send notification to receiver
     private void sendMessage() {
         HashMap<String, Object> message = new HashMap<>();
         message.put(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID));
@@ -121,10 +125,12 @@ public class ChatActivity extends BaseActivity {
         binding.inputMessage.setText(null);
     }
 
+    //EFFECTS: Show Toast from String Message
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    //EFFECTS: Receives JSON String and Send Notification to Receiver via FCM and Retrofit
     private void sendNotification(String message) {
         ApiClient.getClient().create(ApiService.class).sendMessage(Constants.getRemoteMsgHeaders(), message)
                 .enqueue(new Callback<String>() {
@@ -142,7 +148,6 @@ public class ChatActivity extends BaseActivity {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-//                            showToast("Notification sent successfully");
                         } else {
                             showToast("Error " + response.code());
                         }
@@ -155,6 +160,8 @@ public class ChatActivity extends BaseActivity {
                 });
     }
 
+    //MODIFIES: this/chatAdapter
+    //EFFECTS: Detect if Receiver is Available from Firebase Database
     private void listenAvailabilityOfReceiver() {
         database.collection(Constants.KEY_COLLECTION_USERS)
                 .document(receiverUser.id)
@@ -184,6 +191,7 @@ public class ChatActivity extends BaseActivity {
                 });
     }
 
+    //EFFECTS: Listen to Chat Collection from firebase and add EventListener
     private void listenMessage() {
         database.collection(Constants.KEY_COLLECTION_CHAT)
                 .whereEqualTo(Constants.KEY_SENDER_ID, preferenceManager.getString(Constants.KEY_USER_ID))
@@ -195,6 +203,8 @@ public class ChatActivity extends BaseActivity {
                 .addSnapshotListener(eventListener);
     }
 
+    //MODIFIES: this
+    //EFFECTS: Listen if there are document changes, change holder for adapter and check for conversations
     private final EventListener<QuerySnapshot> eventListener = (value, error) -> {
         if (error != null) {
             return;
@@ -227,6 +237,7 @@ public class ChatActivity extends BaseActivity {
         }
     };
 
+    //EFFECTS: returns the Bitmap from encoded string
     private Bitmap getBitmapFromEncodedString(String encodedImage) {
         if (encodedImage == null) {
             return null;
@@ -235,28 +246,37 @@ public class ChatActivity extends BaseActivity {
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
     }
 
+    //MODIFIES: this
+    //EFFECTS: loads receiver user from SerializableExtra
     private void loadReceiver() {
         receiverUser = (Users) getIntent().getSerializableExtra(Constants.KEY_USER);
         binding.textName.setText(receiverUser.name);
     }
 
+    //EFFECTS: add OnClickListeners for layouts
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v -> sendMessage());
     }
 
+    //EFFECTS: returns the time and date in readable format
     private String getReadableTimeDate(Date date) {
         return new SimpleDateFormat("yyyy-MMMM-dd - hh:mm a", Locale.getDefault()).format(date);
     }
 
     //Recent Conversation
 
+    //MODIFIES: this
+    //EFFECTS: add conversation to firebase conversations collection
     private void addConversation(HashMap<String, Object> conversation) {
         database.collection(Constants.KEY_COLLECTION_CONVERSATIONS)
                 .add(conversation)
                 .addOnSuccessListener(documentReference -> {conversationId = documentReference.getId();});
     }
 
+
+    //MODIFIES: this
+    //EFFECTS: check for conversation, if there is no conversation, create one
     private void updateConversation(String message) {
         DocumentReference documentReference = database.collection(Constants.KEY_COLLECTION_CONVERSATIONS)
                 .document(conversationId);
@@ -266,6 +286,7 @@ public class ChatActivity extends BaseActivity {
         );
     }
 
+    //EFFECTS: check for conversation from userId and receiverId
     private void checkForConversation() {
         if (chatMessages.size() != 0) {
             checkForConversationRemotely(preferenceManager.getString(Constants.KEY_USER_ID),
@@ -275,6 +296,7 @@ public class ChatActivity extends BaseActivity {
         }
     }
 
+    //EFFECTS: check for conversation remotely from senderId and receiverId, add OnCompleteListener
     private void checkForConversationRemotely(String senderId, String receiverId) {
         this.database.collection(Constants.KEY_COLLECTION_CONVERSATIONS)
                 .whereEqualTo(Constants.KEY_SENDER_ID, senderId)
@@ -283,6 +305,8 @@ public class ChatActivity extends BaseActivity {
                 .addOnCompleteListener(conversionOnCompleteListener);
     }
 
+    //MODIFIES: this
+    //EFFECTS: add OnCompleteListener to check for conversation
     private final OnCompleteListener<QuerySnapshot> conversionOnCompleteListener = task -> {
         if (task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
             DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);

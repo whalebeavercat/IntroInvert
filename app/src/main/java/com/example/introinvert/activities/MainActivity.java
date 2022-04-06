@@ -50,6 +50,8 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         listenConversations();
     }
 
+    //MODIFIES: this
+    //EFFECTS: updates the firebase database and adapters
     private void init() {
         this.recentChatMessages = new ArrayList<>();
         this.database = FirebaseFirestore.getInstance();
@@ -57,12 +59,14 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         binding.conversationsRecyclerView.setAdapter(recentConversationAdapter);
     }
 
+    //EFFECTS: sets the listeners for the buttons
     private void setListeners() {
         binding.imageSignOut.setOnClickListener(v -> signOut());
         binding.fabNewChat.setOnClickListener(v ->
                 startActivity(new Intent(getApplicationContext(), UsersActivity.class)));
     }
 
+    //EFFECTS: load the user details
     private void loadUserDetails() {
         binding.textName.setText("Welcome " + preferenceManager.getString(Constants.KEY_NAME));
         byte[] bytes = Base64.decode(preferenceManager.getString(Constants.KEY_IMAGE), Base64.DEFAULT);
@@ -70,6 +74,7 @@ public class MainActivity extends BaseActivity implements ConversationListener {
         binding.imageProfile.setImageBitmap(bitmap);
     }
 
+    //EFFECTS: show Toast message
     private void showToast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
@@ -83,6 +88,7 @@ public class MainActivity extends BaseActivity implements ConversationListener {
                 .addSnapshotListener(eventListener);
     }
 
+    //EFFECTS: creates eventListeners that listens to document changes, and updates the adapters and conversations
     private final EventListener<QuerySnapshot> eventListener = (value, error) -> {
         if (error != null) {
             return;
@@ -126,10 +132,13 @@ public class MainActivity extends BaseActivity implements ConversationListener {
             binding.progressBar.setVisibility(View.INVISIBLE);
         }
     };
+
+    //EFFECTS: get a Token
     private void getToken() {
         FirebaseMessaging.getInstance().getToken().addOnSuccessListener(this::updateToken);
     }
 
+    //EFFECTS: update the token
     private void updateToken(String token) {
         preferenceManager.putString(Constants.KEY_FCM_TOKEN, token);
         FirebaseFirestore database = FirebaseFirestore.getInstance();
@@ -146,6 +155,7 @@ public class MainActivity extends BaseActivity implements ConversationListener {
 
     }
 
+    //EFFECTS: sign out and delete token
     private void signOut() {
         showToast("Signing Out");
         FirebaseFirestore database = FirebaseFirestore.getInstance();
