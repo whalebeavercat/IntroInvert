@@ -28,6 +28,7 @@ public class AddUserActivity extends BaseActivity implements UserListener {
     private List<Users> alreadyInChat;
     private List<Users> newUsersInChat;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
