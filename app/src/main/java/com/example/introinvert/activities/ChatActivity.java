@@ -1,8 +1,10 @@
 package com.example.introinvert.activities;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
@@ -10,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.introinvert.adapters.AddUserAdapter;
 import com.example.introinvert.adapters.ChatAdapter;
 import com.example.introinvert.databinding.ActivityChatBinding;
 import com.example.introinvert.models.ChatMessage;
@@ -30,6 +33,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,14 +50,14 @@ import retrofit2.Response;
 //Chat Activity between two users
 public class ChatActivity extends BaseActivity {
 
-    private ActivityChatBinding binding;
-    private Users receiverUser;
-    private List<ChatMessage> chatMessages;
-    private ChatAdapter chatAdapter;
-    private PreferenceManager preferenceManager;
-    private FirebaseFirestore database;
-    private String conversationId = null;
-    private Boolean isReceiverAvailable = false;
+    protected ActivityChatBinding binding;
+    protected Users receiverUser;
+    protected List<ChatMessage> chatMessages;
+    protected ChatAdapter chatAdapter;
+    protected PreferenceManager preferenceManager;
+    protected FirebaseFirestore database;
+    protected String conversationId = null;
+    protected Boolean isReceiverAvailable = false;
 
 
     @Override
@@ -123,6 +127,14 @@ public class ChatActivity extends BaseActivity {
             }
         }
         binding.inputMessage.setText(null);
+    }
+
+    //EFFECT: Intent to UsersActivity and pass with Serializable Extras to avoid conflicts
+    private void addUser() {
+        Intent intent = new Intent(this, AddUserActivity.class);
+        intent.putExtra(Constants.KEY_USER, receiverUser);
+        startActivity(intent);
+        finish();
     }
 
     //EFFECTS: Show Toast from String Message
@@ -257,7 +269,9 @@ public class ChatActivity extends BaseActivity {
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v -> sendMessage());
+        binding.imageAddUser.setOnClickListener(v -> addUser());
     }
+
 
     //EFFECTS: returns the time and date in readable format
     private String getReadableTimeDate(Date date) {
